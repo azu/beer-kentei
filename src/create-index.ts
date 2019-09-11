@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import * as path from "path";
+import * as fs from "fs";
 
 const outputFilePath = path.join(__dirname, "../data/index.json");
 const START_URL = "https://beerpalette.jp/category/%E6%97%A5%E6%9C%AC%E3%83%93%E3%83%BC%E3%83%AB%E6%A4%9C%E5%AE%9A%EF%BC%88%E3%81%B3%E3%81%82%E3%81%91%E3%82%93%EF%BC%89";
@@ -23,7 +24,15 @@ const scrapePage = async (browser: puppeteer.Browser, url: string):
     const articles = await fetchArticle(page);
     const nextURL = await page.evaluate(() => {
         const link: HTMLAnchorElement | null = document.querySelector(`a[rel="next"]`);
-        return link && link.href;
+        const nextURL = link && link.href;
+        if (!nextURL) {
+            return null;
+        }
+        // ignore #
+        if (/^https?:/.test(nextURL) && !/#$/.test(nextURL)) {
+            return nextURL;
+        }
+        return null;
     });
     return {
         articles,
@@ -34,9 +43,11 @@ puppeteer.launch().then(async browser => {
     let pageURL: string | null = START_URL;
     const allArticles: Article[] = [];
     while (pageURL) {
+        console.log(pageURL);
         const { articles, nextURL } = await scrapePage(browser, pageURL);
         allArticles.push(...articles);
         pageURL = nextURL as string | null;
     }
+    fs.writeFileSync(outputFilePath, JSON.stringify(allArticles, null, 4), "utf-8");
     browser.close();
 });

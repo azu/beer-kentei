@@ -10,6 +10,7 @@
     "sourceMap": true,
     "declaration": true,
     "jsx": "preserve",
+    "resolveJsonModule": true,
     "lib": [
       "esnext",
       "dom"

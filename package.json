@@ -25,6 +25,7 @@
   },
   "scripts": {
     "create:index": "ts-node src/create-index.ts",
+    "create:contents": "ts-node src/create-contents.ts",
     "build": "cross-env NODE_ENV=production tsc -p .",
     "clean": "rimraf lib/",
     "prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,css}\"",
@@ -63,6 +64,8 @@
     "typescript": "^3.6.3"
   },
   "dependencies": {
-    "puppeteer": "^1.19.0"
+    "@types/turndown": "^5.0.0",
+    "puppeteer": "^1.19.0",
+    "turndown": "^5.0.3"
   }
 }
