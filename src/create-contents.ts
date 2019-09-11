@@ -5,7 +5,7 @@ import TurndownService from "turndown";
 import * as fs from "fs";
 import * as path from "path";
 
-const outputFilePath = path.join(__dirname, "..data/contents.json");
+const outputFilePath = path.join(__dirname, "../data/contents.json");
 const turndownService = new TurndownService();
 const fetchQuestionPage = async (page: puppeteer.Page): Promise<string> => {
     return await page.evaluate(() => {
@@ -53,7 +53,7 @@ const fetchAnswerPage = async (page: puppeteer.Page): Promise<string> => {
 };
 
 const scrapePage = async (browser: puppeteer.Browser, url: string):
-    Promise<{ question: string; answer: string; answerMarkdown: string; questionMarkdown: string; }> => {
+    Promise<{ question: string; answer: string; answerMarkdown: string; questionMarkdown: string; } | null> => {
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded" });
     const nextURL = await page.evaluate(() => {
@@ -70,7 +70,8 @@ const scrapePage = async (browser: puppeteer.Browser, url: string):
     });
     const question = await fetchQuestionPage(page);
     if (!nextURL) {
-        throw new Error("Not found answer page");
+        // not found answer
+        return null;
     }
     await page.goto(nextURL, { waitUntil: "domcontentloaded" });
     const answer = await fetchAnswerPage(page);
@@ -78,7 +79,14 @@ const scrapePage = async (browser: puppeteer.Browser, url: string):
         answer,
         question,
         answerMarkdown: turndownService.turndown(answer).split("\n").filter(text => {
-            if (text.includes("びあけんの過去問と予想問題をチェック！") || text.includes("過去問・予想問題集はこちらから")) {
+            if (text.includes("過去問は下記リンク") ||
+                text.includes("過去問と予想問題をチェック！") ||
+                text.includes("過去問リンク") ||
+                text.includes("びあけん対策に…ビール最新情報をチェック！") ||
+                text.includes("びあけん対策に…ビール最新情報をチェック！") ||
+                text.includes("ビール業界情報館はこちら") ||
+                text.includes("過去問集はこちらから") ||
+                text.includes("予想問題集はこちらから")) {
                 return false;
             }
             return true;
@@ -90,7 +98,11 @@ puppeteer.launch().then(async browser => {
     const results = [];
     for (const { url, title } of index) {
         console.log(url);
-        const { answer, answerMarkdown, question, questionMarkdown } = await scrapePage(browser, url);
+        const res = await scrapePage(browser, url);
+        if (!res) {
+            continue;
+        }
+        const { answer, answerMarkdown, question, questionMarkdown } = res;
         results.push({
             title,
             url,

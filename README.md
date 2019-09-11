@@ -1,16 +1,22 @@
 # beer-kentei
 
-ビール検定
+ビール検定の過去問
+
+- [日本ビール検定（びあけん） - ビアパレット](https://beerpalette.jp/category/%E6%97%A5%E6%9C%AC%E3%83%93%E3%83%BC%E3%83%AB%E6%A4%9C%E5%AE%9A%EF%BC%88%E3%81%B3%E3%81%82%E3%81%91%E3%82%93%EF%BC%89)
 
 ## Install
 
-Install with [npm](https://www.npmjs.com/):
-
-    npm install beer-kentei
+    yarn install
 
 ## Usage
 
-- [ ] Write usage instructions
+インデックスとコンテンツの作成を順番に行う
+
+    yarn run create:index
+    yarn run create:contents
+    
+[data/](data/) にファイルが出力される
+
 
 ## Changelog
 
